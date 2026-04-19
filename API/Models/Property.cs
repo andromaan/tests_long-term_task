@@ -9,7 +9,7 @@ public class Property
     public string City { get; set; } = string.Empty;
     
     public decimal Price { get; set; }
-    public double Area { get; set; }
+    public decimal Area { get; set; }
     
     public int Bedrooms { get; set; }
     public int Bathrooms { get; set; }

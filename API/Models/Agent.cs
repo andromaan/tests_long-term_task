@@ -1,4 +1,6 @@
-﻿namespace API.Models;
+﻿using System.Collections.Generic;
+
+namespace API.Models;
 
 public class Agent
 {

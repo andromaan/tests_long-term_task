@@ -1,4 +1,6 @@
-﻿namespace API.Models;
+﻿using System;
+
+namespace API.Models;
 
 public class Inquiry
 {
