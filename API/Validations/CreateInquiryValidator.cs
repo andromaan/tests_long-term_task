@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace API.Validations;
 
-public class InquiryValidator : AbstractValidator<CreateInquiryDto>
+public class CreateInquiryValidator : AbstractValidator<CreateInquiryDto>
 {
-    public InquiryValidator()
+    public CreateInquiryValidator()
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(100);

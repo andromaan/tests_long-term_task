@@ -46,7 +46,7 @@ public class PropertiesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Property>> UpdateProperty(int id, [FromBody] CreatePropertyDto dto)
+    public async Task<ActionResult<Property>> UpdateProperty(int id, [FromBody] UpdatePropertyDto dto)
     {
         var property = dto.ToModel();
         var updatedProperty = await _propertyService.UpdateAsync(id, property);

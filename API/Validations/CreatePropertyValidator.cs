@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace API.Validations;
 
-public class PropertyValidator : AbstractValidator<CreatePropertyDto>
+public class CreatePropertyValidator : AbstractValidator<CreatePropertyDto>
 {
-    public PropertyValidator()
+    public CreatePropertyValidator()
     {
         RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Description).NotEmpty();

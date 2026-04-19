@@ -40,7 +40,7 @@ public class AgentsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Agent>> UpdateAgent(int id, [FromBody] CreateAgentDto dto)
+    public async Task<ActionResult<Agent>> UpdateAgent(int id, [FromBody] UpdateAgentDto dto)
     {
         var agent = dto.ToModel();
         var updatedAgent = await _agentService.UpdateAsync(id, agent);

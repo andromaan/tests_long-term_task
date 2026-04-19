@@ -1,11 +1,11 @@
-﻿using API.DTOs.Agent;
+using API.DTOs.Agent;
 using FluentValidation;
 
 namespace API.Validations;
 
-public class AgentValidator : AbstractValidator<CreateAgentDto>
+public class UpdateAgentValidator : AbstractValidator<UpdateAgentDto>
 {
-    public AgentValidator()
+    public UpdateAgentValidator()
     {
         RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
         RuleFor(x => x.LastName).NotEmpty().MaximumLength(100);
@@ -14,4 +14,3 @@ public class AgentValidator : AbstractValidator<CreateAgentDto>
         RuleFor(x => x.LicenseNumber).NotEmpty().MaximumLength(50);
     }
 }
-

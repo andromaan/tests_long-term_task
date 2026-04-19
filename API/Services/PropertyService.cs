@@ -66,7 +66,6 @@ public class PropertyService : IPropertyService
         existingProperty.Bedrooms = property.Bedrooms;
         existingProperty.Bathrooms = property.Bathrooms;
         existingProperty.Type = property.Type;
-        existingProperty.Status = property.Status;
         existingProperty.AgentId = property.AgentId;
 
         await _context.SaveChangesAsync();
