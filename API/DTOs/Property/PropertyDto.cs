@@ -15,21 +15,23 @@ public record PropertyDto(
     PropertyType Type,
     PropertyStatus Status,
     int AgentId,
-    DateTime ListedAt)
+    DateTime ListedAt
+)
 {
-    public static PropertyDto FromModel(Models.Property property) => new(
-        property.Id,
-        property.Title,
-        property.Description,
-        property.Address,
-        property.City,
-        property.Price,
-        property.Area,
-        property.Bedrooms,
-        property.Bathrooms,
-        property.Type,
-        property.Status,
-        property.AgentId,
-        property.ListedAt);
+    public static PropertyDto FromModel(Models.Property property) =>
+        new(
+            property.Id,
+            property.Title,
+            property.Description,
+            property.Address,
+            property.City,
+            property.Price,
+            property.Area,
+            property.Bedrooms,
+            property.Bathrooms,
+            property.Type,
+            property.Status,
+            property.AgentId,
+            property.ListedAt
+        );
 }
-

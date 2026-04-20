@@ -12,4 +12,3 @@ public interface IAgentService
     Task<IEnumerable<Property>> GetPropertiesByAgentIdAsync(int agentId);
     Task<IEnumerable<Inquiry>> GetInquiriesByAgentIdAsync(int agentId);
 }
-

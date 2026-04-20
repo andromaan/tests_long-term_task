@@ -11,17 +11,20 @@ public class CreatePropertyValidator : AbstractValidator<CreatePropertyDto>
         RuleFor(x => x.Description).NotEmpty();
         RuleFor(x => x.Address).NotEmpty().MaximumLength(200);
         RuleFor(x => x.City).NotEmpty().MaximumLength(100);
-        
+
         // Price and Area must be positive
         RuleFor(x => x.Price).GreaterThan(0).WithMessage("Price must be positive");
         RuleFor(x => x.Area).GreaterThan(0).WithMessage("Area must be positive");
-        
+
         // Bedrooms and Bathrooms must be non-negative integers
-        RuleFor(x => x.Bedrooms).GreaterThanOrEqualTo(0).WithMessage("Bedrooms must be non-negative");
-        RuleFor(x => x.Bathrooms).GreaterThanOrEqualTo(0).WithMessage("Bathrooms must be non-negative");
-        
+        RuleFor(x => x.Bedrooms)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Bedrooms must be non-negative");
+        RuleFor(x => x.Bathrooms)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Bathrooms must be non-negative");
+
         RuleFor(x => x.Type).IsInEnum();
         RuleFor(x => x.AgentId).GreaterThan(0);
     }
 }
-

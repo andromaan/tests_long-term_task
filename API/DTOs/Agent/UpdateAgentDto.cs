@@ -5,14 +5,16 @@ public record UpdateAgentDto(
     string LastName,
     string Email,
     string Phone,
-    string LicenseNumber)
+    string LicenseNumber
+)
 {
-    public Models.Agent ToModel() => new Models.Agent
-    {
-        FirstName = FirstName,
-        LastName = LastName,
-        Email = Email,
-        Phone = Phone,
-        LicenseNumber = LicenseNumber
-    };
+    public Models.Agent ToModel() =>
+        new Models.Agent
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Email = Email,
+            Phone = Phone,
+            LicenseNumber = LicenseNumber,
+        };
 }

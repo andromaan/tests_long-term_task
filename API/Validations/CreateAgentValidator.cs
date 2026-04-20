@@ -14,4 +14,3 @@ public class CreateAgentValidator : AbstractValidator<CreateAgentDto>
         RuleFor(x => x.LicenseNumber).NotEmpty().MaximumLength(50);
     }
 }
-

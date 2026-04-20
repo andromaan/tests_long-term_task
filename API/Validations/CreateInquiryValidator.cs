@@ -13,4 +13,3 @@ public class CreateInquiryValidator : AbstractValidator<CreateInquiryDto>
         RuleFor(x => x.Message).NotEmpty();
     }
 }
-

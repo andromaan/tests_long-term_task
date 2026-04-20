@@ -12,39 +12,46 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Property configuration
-        modelBuilder.Entity<Property>()
+        modelBuilder
+            .Entity<Property>()
             .HasOne(p => p.Agent)
             .WithMany(a => a.Properties)
             .HasForeignKey(p => p.AgentId)
             .OnDelete(DeleteBehavior.SetNull);
-        
-        modelBuilder.Entity<Property>()
+
+        modelBuilder
+            .Entity<Property>()
             .Property(p => p.Type)
             .HasConversion(
                 v => v.ToString(),
-                v => (PropertyType)Enum.Parse(typeof(PropertyType), v)).IsRequired();
-        
-        modelBuilder.Entity<Property>()
+                v => (PropertyType)Enum.Parse(typeof(PropertyType), v)
+            )
+            .IsRequired();
+
+        modelBuilder
+            .Entity<Property>()
             .Property(p => p.Status)
             .HasConversion(
                 v => v.ToString(),
-                v => (PropertyStatus)Enum.Parse(typeof(PropertyStatus), v)).IsRequired();
-        
-        modelBuilder.Entity<Property>()
+                v => (PropertyStatus)Enum.Parse(typeof(PropertyStatus), v)
+            )
+            .IsRequired();
+
+        modelBuilder
+            .Entity<Property>()
             .Property(p => p.Price)
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
         // Inquiry configuration
-        modelBuilder.Entity<Inquiry>()
+        modelBuilder
+            .Entity<Inquiry>()
             .HasOne(i => i.Property)
             .WithMany(p => p.Inquiries)
             .HasForeignKey(i => i.PropertyId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Agent configuration
-        modelBuilder.Entity<Agent>()
-            .HasIndex(a => a.LicenseNumber)
-            .IsUnique();
+        modelBuilder.Entity<Agent>().HasIndex(a => a.LicenseNumber).IsUnique();
     }
 }
