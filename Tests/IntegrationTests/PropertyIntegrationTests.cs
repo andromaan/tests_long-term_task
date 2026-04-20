@@ -9,11 +9,13 @@ using Tests.Common;
 
 namespace Tests.IntegrationTests;
 
-public class PropertyIntegrationTests : BaseIntegrationTest
+public class PropertyIntegrationTests : BaseIntegrationTest, IAsyncLifetime
 {
     private readonly Fixture _fixture;
+    private Agent _testAgent = null!;
 
-    public PropertyIntegrationTests(IntegrationTestWebFactory factory) : base(factory)
+    public PropertyIntegrationTests(IntegrationTestWebFactory factory)
+        : base(factory)
     {
         _fixture = new Fixture();
         _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
@@ -33,15 +35,13 @@ public class PropertyIntegrationTests : BaseIntegrationTest
     public async Task Can_Post_Property_Successfully()
     {
         // Arrange
-        var agent = await CreateTestAgentAsync();
-
         var dto = _fixture
             .Build<CreatePropertyDto>()
             .With(p => p.Price, 200000)
             .With(p => p.Area, 120)
             .With(p => p.Bedrooms, 3)
             .With(p => p.Bathrooms, 2)
-            .With(p => p.AgentId, agent.Id)
+            .With(p => p.AgentId, _testAgent.Id)
             .Create();
 
         // Act
@@ -60,14 +60,12 @@ public class PropertyIntegrationTests : BaseIntegrationTest
     public async Task Can_Search_Properties_With_Multiple_Filters()
     {
         // Arrange
-        var agent = await CreateTestAgentAsync();
-
         // Create random properties
         var properties = _fixture
             .Build<Property>()
             .Without(p => p.Agent)
             .Without(p => p.Inquiries)
-            .With(p => p.AgentId, agent.Id)
+            .With(p => p.AgentId, _testAgent.Id)
             .With(p => p.ListedAt, DateTime.UtcNow)
             .CreateMany(5)
             .ToList();
@@ -81,7 +79,7 @@ public class PropertyIntegrationTests : BaseIntegrationTest
             .With(p => p.Type, PropertyType.House)
             .With(p => p.Price, 150000)
             .With(p => p.Bedrooms, 4)
-            .With(p => p.AgentId, agent.Id)
+            .With(p => p.AgentId, _testAgent.Id)
             .With(p => p.ListedAt, DateTime.UtcNow)
             .Create();
 
@@ -110,14 +108,12 @@ public class PropertyIntegrationTests : BaseIntegrationTest
     public async Task Can_Submit_Inquiry_For_Available_Property()
     {
         // Arrange
-        var agent = await CreateTestAgentAsync();
-
         var property = _fixture
             .Build<Property>()
             .Without(p => p.Agent)
             .Without(p => p.Inquiries)
             .With(p => p.Status, PropertyStatus.Available)
-            .With(p => p.AgentId, agent.Id)
+            .With(p => p.AgentId, _testAgent.Id)
             .With(p => p.ListedAt, DateTime.UtcNow)
             .Create();
 
@@ -150,4 +146,12 @@ public class PropertyIntegrationTests : BaseIntegrationTest
         savedInquiry.ShouldNotBeNull();
         savedInquiry.PropertyId.ShouldBe(property.Id);
     }
+
+    public async Task InitializeAsync()
+    {
+        await ClearDatabaseAsync();
+        _testAgent = await CreateTestAgentAsync();
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 }
