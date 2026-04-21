@@ -1,23 +1,27 @@
 using API.Data;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Tests.Common;
 
 public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebFactory>
 {
-    protected readonly AppDbContext Context;
-    protected readonly HttpClient Client;
     protected readonly IntegrationTestWebFactory Factory;
+    protected readonly HttpClient Client;
+    protected AppDbContext Context { get; set; }
 
     protected BaseIntegrationTest(IntegrationTestWebFactory factory)
     {
         Factory = factory;
-
-        var scope = factory.Services.CreateScope();
-        Context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
         Client = factory.CreateClient();
+        Context = CreateNewContext();
+    }
+
+    protected AppDbContext CreateNewContext()
+    {
+        var scope = Factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.ChangeTracker.Clear();
+        return context;
     }
 
     protected async Task<int> SaveChangesAsync()
@@ -33,5 +37,6 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebFact
         Context.Properties.RemoveRange(Context.Properties);
         Context.Inquiries.RemoveRange(Context.Inquiries);
         await Context.SaveChangesAsync();
+        Context.ChangeTracker.Clear();
     }
 }
