@@ -102,6 +102,11 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Setup k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6
+
       - name: Install k6 dependencies
         working-directory: k6
         run: npm install
