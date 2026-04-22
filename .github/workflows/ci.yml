@@ -91,11 +91,11 @@ jobs:
         run: dotnet build API/API.csproj --no-restore --configuration Release
 
       - name: Start API server
-        run: |
-          dotnet run --project API/API.csproj --no-build --configuration Release &
-          sleep 10
         env:
           DB_CONNECTION_STRING: ${{ env.DB_CONNECTION_STRING }}
+        run: |
+          nohup dotnet run --project API/API.csproj --no-build --configuration Release --urls "http://localhost:5000" > api.log 2>&1 &
+          sleep 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -104,8 +104,11 @@ jobs:
 
       - name: Setup k6
         run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update
-          sudo apt-get install -y k6
+          sudo apt-get install k6 -y
 
       - name: Install k6 dependencies
         working-directory: k6
@@ -115,20 +118,24 @@ jobs:
         working-directory: k6
         run: npm run smoke
         env:
-          BASE_URL: http://localhost:5229
+          BASE_URL: http://localhost:5000
 
       - name: Run k6 Load Test
         working-directory: k6
         run: npm run load
         env:
-          BASE_URL: http://localhost:5229
+          BASE_URL: http://localhost:5000
 
       - name: Run k6 Stress Test
         working-directory: k6
         run: npm run stress
         env:
-          BASE_URL: http://localhost:5229
+          BASE_URL: http://localhost:5000
         continue-on-error: true
+
+      - name: Dump API Logs (On Failure)
+        if: failure()
+        run: cat api.log
 
   code-quality:
     runs-on: ubuntu-latest
