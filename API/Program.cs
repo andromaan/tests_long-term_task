@@ -22,6 +22,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddScoped<IPropertyService, PropertyService>();
+builder.Services.AddScoped<IDataSeedService, DataSeedService>();
 
 // Setup EF Core with PostgreSQL
 var connectionString =
@@ -48,6 +49,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
+// Apply migrations and seed data
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+
+    var seedService = scope.ServiceProvider.GetRequiredService<IDataSeedService>();
+    await seedService.SeedAsync();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -56,13 +67,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+
 app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
 
-app.UseHttpsRedirection();
-
-app.MapControllers();
-
-app.Run();
+public partial class Program { }
