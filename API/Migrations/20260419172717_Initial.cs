@@ -16,25 +16,34 @@ namespace API.Migrations
                 name: "agents",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table
+                        .Column<int>(type: "integer", nullable: false)
+                        .Annotation(
+                            "Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn
+                        ),
                     first_name = table.Column<string>(type: "text", nullable: false),
                     last_name = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
                     phone = table.Column<string>(type: "text", nullable: false),
-                    license_number = table.Column<string>(type: "text", nullable: false)
+                    license_number = table.Column<string>(type: "text", nullable: false),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_agents", x => x.id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "properties",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table
+                        .Column<int>(type: "integer", nullable: false)
+                        .Annotation(
+                            "Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn
+                        ),
                     title = table.Column<string>(type: "text", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
                     address = table.Column<string>(type: "text", nullable: false),
@@ -46,7 +55,10 @@ namespace API.Migrations
                     type = table.Column<string>(type: "text", nullable: false),
                     status = table.Column<string>(type: "text", nullable: false),
                     agent_id = table.Column<int>(type: "integer", nullable: false),
-                    listed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    listed_at = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
                 },
                 constraints: table =>
                 {
@@ -56,22 +68,31 @@ namespace API.Migrations
                         column: x => x.agent_id,
                         principalTable: "agents",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
-                });
+                        onDelete: ReferentialAction.SetNull
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "inquiries",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table
+                        .Column<int>(type: "integer", nullable: false)
+                        .Annotation(
+                            "Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn
+                        ),
                     property_id = table.Column<int>(type: "integer", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
                     phone = table.Column<string>(type: "text", nullable: false),
                     message = table.Column<string>(type: "text", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    is_responded = table.Column<bool>(type: "boolean", nullable: false)
+                    created_at = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    is_responded = table.Column<bool>(type: "boolean", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -81,37 +102,39 @@ namespace API.Migrations
                         column: x => x.property_id,
                         principalTable: "properties",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_agents_license_number",
                 table: "agents",
                 column: "license_number",
-                unique: true);
+                unique: true
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_inquiries_property_id",
                 table: "inquiries",
-                column: "property_id");
+                column: "property_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_properties_agent_id",
                 table: "properties",
-                column: "agent_id");
+                column: "agent_id"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "inquiries");
+            migrationBuilder.DropTable(name: "inquiries");
 
-            migrationBuilder.DropTable(
-                name: "properties");
+            migrationBuilder.DropTable(name: "properties");
 
-            migrationBuilder.DropTable(
-                name: "agents");
+            migrationBuilder.DropTable(name: "agents");
         }
     }
 }

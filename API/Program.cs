@@ -1,10 +1,10 @@
 using API.Data;
 using API.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,23 +24,27 @@ builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 
 // Setup EF Core with PostgreSQL
-var connectionString = builder.Configuration["DB_CONNECTION_STRING"] ?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+var connectionString =
+    builder.Configuration["DB_CONNECTION_STRING"]
+    ?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 var dataSourceBuild = new NpgsqlDataSourceBuilder(connectionString);
 
 var dataSource = dataSourceBuild.Build();
 
-builder.Services.AddDbContext<AppDbContext>(options => {
-    options.UseNpgsql(dataSource, npgsqlOptions =>
-    {
-        npgsqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
-    });
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseNpgsql(
+        dataSource,
+        npgsqlOptions =>
+        {
+            npgsqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+        }
+    );
 
     options.UseSnakeCaseNamingConvention();
 
-    options.ConfigureWarnings(w =>
-        w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
+    options.ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
 });
-
 
 var app = builder.Build();
 

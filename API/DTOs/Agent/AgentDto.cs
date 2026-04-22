@@ -6,14 +6,16 @@ public record AgentDto(
     string LastName,
     string Email,
     string Phone,
-    string LicenseNumber)
-
+    string LicenseNumber
+)
 {
-    public static AgentDto FromModel(Models.Agent agent) => new(
-        agent.Id,
-        agent.FirstName,
-        agent.LastName,
-        agent.Email,
-        agent.Phone,
-        agent.LicenseNumber);
+    public static AgentDto FromModel(Models.Agent agent) =>
+        new(
+            agent.Id,
+            agent.FirstName,
+            agent.LastName,
+            agent.Email,
+            agent.Phone,
+            agent.LicenseNumber
+        );
 }

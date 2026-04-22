@@ -12,22 +12,23 @@ public record CreatePropertyDto(
     int Bedrooms,
     int Bathrooms,
     PropertyType Type,
-    int AgentId)
+    int AgentId
+)
 {
-    public Models.Property ToModel() => new Models.Property
-    {
-        Title = Title,
-        Description = Description,
-        Address = Address,
-        City = City,
-        Price = Price,
-        Area = Area,
-        Bedrooms = Bedrooms,
-        Bathrooms = Bathrooms,
-        Type = Type,
-        AgentId = AgentId,
-        Status = PropertyStatus.Available,
-        ListedAt = DateTime.UtcNow
-    };
+    public Models.Property ToModel() =>
+        new Models.Property
+        {
+            Title = Title,
+            Description = Description,
+            Address = Address,
+            City = City,
+            Price = Price,
+            Area = Area,
+            Bedrooms = Bedrooms,
+            Bathrooms = Bathrooms,
+            Type = Type,
+            AgentId = AgentId,
+            Status = PropertyStatus.Available,
+            ListedAt = DateTime.UtcNow,
+        };
 }
-

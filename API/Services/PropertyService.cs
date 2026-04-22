@@ -13,7 +13,13 @@ public class PropertyService : IPropertyService
         _context = context;
     }
 
-    public async Task<IEnumerable<Property>> GetPropertiesAsync(string? city, PropertyType? type, decimal? minPrice, decimal? maxPrice, int? bedrooms)
+    public async Task<IEnumerable<Property>> GetPropertiesAsync(
+        string? city,
+        PropertyType? type,
+        decimal? minPrice,
+        decimal? maxPrice,
+        int? bedrooms
+    )
     {
         var query = _context.Properties.AsQueryable();
 
@@ -33,15 +39,14 @@ public class PropertyService : IPropertyService
 
     public async Task<Property?> GetByIdAsync(int id)
     {
-        return await _context.Properties
-            .Include(p => p.Agent)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        return await _context.Properties.Include(p => p.Agent).FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Property> CreateAsync(Property property)
     {
         var agentExists = await _context.Agents.AnyAsync(a => a.Id == property.AgentId);
-        if (!agentExists) throw new ArgumentException("Agent does not exist.");
+        if (!agentExists)
+            throw new ArgumentException("Agent does not exist.");
 
         property.ListedAt = DateTime.UtcNow;
         _context.Properties.Add(property);
@@ -52,10 +57,12 @@ public class PropertyService : IPropertyService
     public async Task<Property?> UpdateAsync(int id, Property property)
     {
         var existingProperty = await _context.Properties.FindAsync(id);
-        if (existingProperty == null) return null;
+        if (existingProperty == null)
+            return null;
 
         var agentExists = await _context.Agents.AnyAsync(a => a.Id == property.AgentId);
-        if (!agentExists) throw new ArgumentException("Agent does not exist.");
+        if (!agentExists)
+            throw new ArgumentException("Agent does not exist.");
 
         existingProperty.Title = property.Title;
         existingProperty.Description = property.Description;
@@ -75,7 +82,8 @@ public class PropertyService : IPropertyService
     public async Task<Property?> ChangeStatusAsync(int id, PropertyStatus status)
     {
         var existing = await _context.Properties.FindAsync(id);
-        if (existing == null) return null;
+        if (existing == null)
+            return null;
 
         existing.Status = status;
         await _context.SaveChangesAsync();
@@ -85,7 +93,8 @@ public class PropertyService : IPropertyService
     public async Task<bool> DeleteAsync(int id)
     {
         var existing = await _context.Properties.FindAsync(id);
-        if (existing == null) return false;
+        if (existing == null)
+            return false;
 
         _context.Properties.Remove(existing);
         await _context.SaveChangesAsync();
@@ -95,11 +104,14 @@ public class PropertyService : IPropertyService
     public async Task<Inquiry?> SubmitInquiryAsync(int propertyId, Inquiry inquiry)
     {
         var property = await _context.Properties.FindAsync(propertyId);
-        if (property == null) return null;
+        if (property == null)
+            return null;
 
         if (property.Status == PropertyStatus.Sold || property.Status == PropertyStatus.Rented)
         {
-            throw new InvalidOperationException("Cannot submit an inquiry for a sold or rented property.");
+            throw new InvalidOperationException(
+                "Cannot submit an inquiry for a sold or rented property."
+            );
         }
 
         inquiry.PropertyId = propertyId;

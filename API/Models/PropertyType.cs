@@ -4,5 +4,5 @@ public enum PropertyType
 {
     Apartment,
     House,
-    Commercial
+    Commercial,
 }

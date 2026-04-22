@@ -25,7 +25,9 @@ public class AgentService : IAgentService
 
     public async Task<Agent> CreateAsync(Agent agent)
     {
-        var licenseExists = await _context.Agents.AnyAsync(a => a.LicenseNumber == agent.LicenseNumber);
+        var licenseExists = await _context.Agents.AnyAsync(a =>
+            a.LicenseNumber == agent.LicenseNumber
+        );
         if (licenseExists)
         {
             throw new ArgumentException("LicenseNumber must be unique.");
@@ -39,9 +41,12 @@ public class AgentService : IAgentService
     public async Task<Agent?> UpdateAsync(int id, Agent agent)
     {
         var existingAgent = await _context.Agents.FindAsync(id);
-        if (existingAgent == null) return null;
+        if (existingAgent == null)
+            return null;
 
-        var licenseExists = await _context.Agents.AnyAsync(a => a.LicenseNumber == agent.LicenseNumber && a.Id != id);
+        var licenseExists = await _context.Agents.AnyAsync(a =>
+            a.LicenseNumber == agent.LicenseNumber && a.Id != id
+        );
         if (licenseExists)
         {
             throw new ArgumentException("LicenseNumber must be unique.");
@@ -60,7 +65,8 @@ public class AgentService : IAgentService
     public async Task<bool> DeleteAsync(int id)
     {
         var existing = await _context.Agents.FindAsync(id);
-        if (existing == null) return false;
+        if (existing == null)
+            return false;
 
         _context.Agents.Remove(existing);
         await _context.SaveChangesAsync();
@@ -69,15 +75,13 @@ public class AgentService : IAgentService
 
     public async Task<IEnumerable<Property>> GetPropertiesByAgentIdAsync(int agentId)
     {
-        return await _context.Properties
-            .Where(p => p.AgentId == agentId)
-            .ToListAsync();
+        return await _context.Properties.Where(p => p.AgentId == agentId).ToListAsync();
     }
 
     public async Task<IEnumerable<Inquiry>> GetInquiriesByAgentIdAsync(int agentId)
     {
-        return await _context.Inquiries
-            .Include(i => i.Property)
+        return await _context
+            .Inquiries.Include(i => i.Property)
             .Where(i => i.Property != null && i.Property.AgentId == agentId)
             .ToListAsync();
     }

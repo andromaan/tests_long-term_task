@@ -1,5 +1,6 @@
-﻿using API.DTOs.Agent;
-using API.Models;
+using API.DTOs.Agent;
+using API.DTOs.Inquiry;
+using API.DTOs.Property;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,57 +18,63 @@ public class AgentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Agent>>> GetAllAgents()
+    public async Task<ActionResult<IEnumerable<AgentDto>>> GetAllAgents()
     {
         var agents = await _agentService.GetAllAsync();
-        return Ok(agents);
+        return Ok(agents.Select(a => AgentDto.FromModel(a)));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Agent>> GetAgent(int id)
+    public async Task<ActionResult<AgentDto>> GetAgent(int id)
     {
         var agent = await _agentService.GetByIdAsync(id);
-        if (agent == null) return NotFound();
-        return Ok(agent);
+        if (agent == null)
+            return NotFound();
+        return Ok(AgentDto.FromModel(agent));
     }
 
     [HttpPost]
-    public async Task<ActionResult<Agent>> CreateAgent([FromBody] CreateAgentDto dto)
+    public async Task<ActionResult<AgentDto>> CreateAgent([FromBody] CreateAgentDto dto)
     {
         var agent = dto.ToModel();
         var createdAgent = await _agentService.CreateAsync(agent);
-        return CreatedAtAction(nameof(GetAgent), new { id = createdAgent.Id }, createdAgent);
+        return CreatedAtAction(
+            nameof(GetAgent),
+            new { id = createdAgent.Id },
+            AgentDto.FromModel(createdAgent)
+        );
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Agent>> UpdateAgent(int id, [FromBody] UpdateAgentDto dto)
+    public async Task<ActionResult<AgentDto>> UpdateAgent(int id, [FromBody] UpdateAgentDto dto)
     {
         var agent = dto.ToModel();
         var updatedAgent = await _agentService.UpdateAsync(id, agent);
-        if (updatedAgent == null) return NotFound();
-        return Ok(updatedAgent);
+        if (updatedAgent == null)
+            return NotFound();
+        return Ok(AgentDto.FromModel(updatedAgent));
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAgent(int id)
     {
         var result = await _agentService.DeleteAsync(id);
-        if (!result) return NotFound();
+        if (!result)
+            return NotFound();
         return NoContent();
     }
 
     [HttpGet("{id}/properties")]
-    public async Task<ActionResult<IEnumerable<Property>>> GetPropertiesByAgent(int id)
+    public async Task<ActionResult<IEnumerable<PropertyDto>>> GetPropertiesByAgent(int id)
     {
         var properties = await _agentService.GetPropertiesByAgentIdAsync(id);
-        return Ok(properties);
+        return Ok(properties.Select(p => PropertyDto.FromModel(p)));
     }
 
     [HttpGet("{id}/inquiries")]
-    public async Task<ActionResult<IEnumerable<Inquiry>>> GetInquiriesByAgent(int id)
+    public async Task<ActionResult<IEnumerable<InquiryDto>>> GetInquiriesByAgent(int id)
     {
         var inquiries = await _agentService.GetInquiriesByAgentIdAsync(id);
-        return Ok(inquiries);
+        return Ok(inquiries.Select(i => InquiryDto.FromModel(i)));
     }
 }
-
