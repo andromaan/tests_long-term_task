@@ -1,0 +1,174 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  DB_CONNECTION_STRING: "Host=localhost;Database=real-estate-db;Username=postgres;Password=postgres"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: real-estate-db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore long-term_task.sln
+
+      - name: Build solution
+        run: dotnet build long-term_task.sln --no-restore --configuration Release
+
+      - name: Run Unit Tests
+        run: dotnet test Tests/Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=test-results.trx" --verbosity normal
+        env:
+          DB_CONNECTION_STRING: ${{ env.DB_CONNECTION_STRING }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/test-results.trx"
+
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: real-estate-db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore .NET dependencies
+        run: dotnet restore long-term_task.sln
+
+      - name: Build API
+        run: dotnet build API/API.csproj --no-restore --configuration Release
+
+      - name: Start API server
+        env:
+          DB_CONNECTION_STRING: ${{ env.DB_CONNECTION_STRING }}
+        run: |
+          nohup dotnet run --project API/API.csproj --no-build --configuration Release --urls "http://localhost:5000" > api.log 2>&1 &
+          sleep 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Setup k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6 -y
+
+      - name: Install k6 dependencies
+        working-directory: k6
+        run: npm install
+
+      - name: Run k6 Smoke Test
+        working-directory: k6
+        run: npm run smoke
+        env:
+          BASE_URL: http://localhost:5000
+
+      - name: Run k6 Load Test
+        working-directory: k6
+        run: npm run load
+        env:
+          BASE_URL: http://localhost:5000
+
+      - name: Run k6 Stress Test
+        working-directory: k6
+        run: npm run stress
+        env:
+          BASE_URL: http://localhost:5000
+        continue-on-error: true
+
+      - name: Dump API Logs (On Failure)
+        if: failure()
+        run: cat api.log
+
+  code-quality:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore long-term_task.sln
+
+      - name: Build solution
+        run: dotnet build long-term_task.sln --no-restore --configuration Release
+
+      - name: Check for warnings
+        run: dotnet build long-term_task.sln --no-restore --configuration Release -warnAsError || true
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: [build-and-test, performance-tests, code-quality]
+    if: always()
+
+    steps:
+      - name: All checks passed
+        if: ${{ !contains(needs.*.result, 'failure') }}
+        run: echo "CI Pipeline completed successfully!"
+
+      - name: Some checks failed
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: echo "CI Pipeline completed with failures" && exit 1
