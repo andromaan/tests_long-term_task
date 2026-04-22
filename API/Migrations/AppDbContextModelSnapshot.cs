@@ -134,8 +134,8 @@ namespace API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("agent_id");
 
-                    b.Property<double>("Area")
-                        .HasColumnType("double precision")
+                    b.Property<decimal>("Area")
+                        .HasColumnType("numeric")
                         .HasColumnName("area");
 
                     b.Property<int>("Bathrooms")
