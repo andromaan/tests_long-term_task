@@ -1,0 +1,14 @@
+{
+  "name": "k6-performance-tests",
+  "version": "1.0.0",
+  "description": "Performance tests for Real Estate API",
+  "scripts": {
+    "smoke": "k6 run ./scripts/smoke-test.ts",
+    "load": "k6 run ./scripts/load-test.ts",
+    "stress": "k6 run ./scripts/stress-test.ts"
+  },
+  "devDependencies": {
+    "@types/k6": "^0.36.0",
+    "typescript": "^5.0.0"
+  }
+}
