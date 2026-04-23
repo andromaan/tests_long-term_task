@@ -1,18 +1,11 @@
-/**
- * Smoke тест — базова перевірка API.
- *
- * Згідно за прикладом. Перевірка мінімальної життєздатності
- * - пошуку нерухомості з базовими критеріями
- */
-
 import { check, sleep } from "k6";
 import { Options } from "k6/options";
 import { THRESHOLDS } from "../helpers/config.ts";
 import { getProperties } from "../helpers/api-client.ts";
 
 export const options: Options = {
-  vus: 1, // 1 віртуальний користувач
-  duration: "20s", // протягом 20 секунд
+  vus: 1,
+  duration: "20s",
   thresholds: THRESHOLDS,
 };
 

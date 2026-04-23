@@ -55,13 +55,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>, IAsyncL
             options.ConfigureWarnings(w =>
             {
                 w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning);
-                w.Ignore(
-                    Microsoft
-                        .EntityFrameworkCore
-                        .Diagnostics
-                        .RelationalEventId
-                        .PendingModelChangesWarning
-                );
+                w.Ignore(RelationalEventId.PendingModelChangesWarning);
             });
         });
     }
