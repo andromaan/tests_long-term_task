@@ -16,8 +16,8 @@ public class DataSeedService : IDataSeedService
     private readonly Fixture _fixture;
 
     private const int AGENT_COUNT = 150;
-    private const int PROPERTIES_PER_AGENT = 46; // ~7000 properties total
-    private const int INQUIRIES_PER_10_PROPERTIES = 4; // ~3000 inquiries total
+    private const int PROPERTIES_PER_AGENT = 46;
+    private const int INQUIRIES_PER_10_PROPERTIES = 4;
 
     private readonly string[] CITIES =
     [
@@ -43,14 +43,11 @@ public class DataSeedService : IDataSeedService
 
     public async Task SeedAsync()
     {
-        // Перевіримо, чи вже дані є в БД
         if (await _context.Agents.AnyAsync())
         {
             Console.WriteLine("Database already seeded. Skipping...");
             return;
         }
-
-        Console.WriteLine("🌱 Starting database seeding...");
 
         try
         {
@@ -124,7 +121,7 @@ public class DataSeedService : IDataSeedService
                 LastName = lastNames[i % lastNames.Length],
                 Email = $"agent_{i}@realestate.com",
                 Phone = $"+380{random.Next(50, 99)}{random.Next(1000000, 9999999)}",
-                LicenseNumber = $"LIC{i:000000}", // Unique license numbers
+                LicenseNumber = $"LIC{i:000000}",
             };
             agents.Add(agent);
         }
@@ -148,6 +145,7 @@ public class DataSeedService : IDataSeedService
             {
                 var property = _fixture
                     .Build<Property>()
+                    .Without(p => p.Id)
                     .Without(p => p.Agent)
                     .Without(p => p.Inquiries)
                     .With(p => p.AgentId, agent.Id)
@@ -170,33 +168,31 @@ public class DataSeedService : IDataSeedService
 
     private List<Inquiry> GenerateInquiries(List<Property> properties)
     {
+        int total = (properties.Count / 10) * INQUIRIES_PER_10_PROPERTIES; // 2760
+        var shuffled = properties.OrderBy(_ => Random.Shared.Next()).ToList();
+
         var inquiries = new List<Inquiry>();
+        int created = 0;
 
-        // Генеруємо запити для випадково обраних об'єктів
-        // ~43% від об'єктів отримуватимуть запити (3000 / 7000)
-        var propertiesToQueryAgainst = properties
-            .Where(_ => random.NextDouble() < 0.43) // 43% обраних об'єктів
-            .ToList();
-
-        foreach (var property in propertiesToQueryAgainst)
+        foreach (var property in shuffled)
         {
-            // Кожен обраний об'єкт отримує 1-4 запити
-            int inquiryCount = random.Next(1, 5);
+            if (created >= total)
+                break;
 
-            for (int i = 0; i < inquiryCount; i++)
+            int count = Math.Min(Random.Shared.Next(1, 5), total - created);
+            for (int i = 0; i < count; i++)
             {
-                var inquiry = _fixture
-                    .Build<Inquiry>()
-                    .Without(i => i.Property)
-                    .With(i => i.PropertyId, property.Id)
-                    .With(i => i.CreatedAt, DateTime.UtcNow.AddDays(-random.Next(0, 30)))
-                    .With(i => i.IsResponded, random.Next(2) == 0) // 50% of inquiries are responded
-                    .Create();
-
-                inquiries.Add(inquiry);
+                inquiries.Add(
+                    new Inquiry
+                    {
+                        PropertyId = property.Id,
+                        CreatedAt = DateTime.UtcNow.AddDays(-Random.Shared.Next(0, 30)),
+                        IsResponded = Random.Shared.Next(2) == 0,
+                    }
+                );
+                created++;
             }
         }
-
         return inquiries;
     }
 

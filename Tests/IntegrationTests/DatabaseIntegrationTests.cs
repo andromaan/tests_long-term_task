@@ -29,6 +29,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest, IAsyncLifetime
         // Arrange - Create properties with different criteria
         var kyivApartments = _fixture
             .Build<Property>()
+            .Without(p => p.Id)
             .Without(p => p.Agent)
             .Without(p => p.Inquiries)
             .With(p => p.City, "Kyiv")
@@ -42,6 +43,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest, IAsyncLifetime
 
         var kyivHouses = _fixture
             .Build<Property>()
+            .Without(p => p.Id)
             .Without(p => p.Agent)
             .Without(p => p.Inquiries)
             .With(p => p.City, "Kyiv")
@@ -55,6 +57,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest, IAsyncLifetime
 
         var lvivApartments = _fixture
             .Build<Property>()
+            .Without(p => p.Id)
             .Without(p => p.Agent)
             .Without(p => p.Inquiries)
             .With(p => p.City, "Lviv")
@@ -564,8 +567,7 @@ public class DatabaseIntegrationTests : BaseIntegrationTest, IAsyncLifetime
         };
 
         Context.Agents.AddRange(_agent1, _agent2);
-        await Context.SaveChangesAsync();
-        Context.ChangeTracker.Clear();
+        await SaveChangesAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

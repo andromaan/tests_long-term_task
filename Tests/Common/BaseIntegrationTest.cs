@@ -33,9 +33,9 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebFact
 
     protected async Task ClearDatabaseAsync()
     {
-        Context.Agents.RemoveRange(Context.Agents);
-        Context.Properties.RemoveRange(Context.Properties);
         Context.Inquiries.RemoveRange(Context.Inquiries);
+        Context.Properties.RemoveRange(Context.Properties);
+        Context.Agents.RemoveRange(Context.Agents);
         await Context.SaveChangesAsync();
         Context.ChangeTracker.Clear();
     }
